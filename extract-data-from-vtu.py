@@ -24,33 +24,37 @@ for i in ReList:
     vtu_file_List = glob("*.vtu")
 
     for j in vtu_file_List:
-        print(j)
-        mesh = meshio.read(j)
+        try:
+            print(j)
+            print(os.getcwd())
+            mesh = meshio.read(j)
 
-        u = mesh.point_data.__getitem__("u")
-        v = mesh.point_data.__getitem__("v")
-
-
-
-        fileIndex = int(j.split(".")[0].split("_")[1]) 
+            u = mesh.point_data.__getitem__("u")
+            v = mesh.point_data.__getitem__("v")
 
 
-        a=mesh.points
-        X = a[:, 0]
-        Y = a[:, 1]
 
-        c = np.column_stack((X, Y, u, v))
-        c = c[ c[:,0].argsort()]    
+            fileIndex = int(j.split(".")[0].split("_")[1]) 
 
-  
 
-        grid_x, grid_y = np.mgrid[min(X):max(X):0.01, min(Y):max(Y):0.01]
-        grid_u = griddata(c[:,0:2], c[:,2],  (grid_x, grid_y),  method='linear')
+            a=mesh.points
+            X = a[:, 0]
+            Y = a[:, 1]
 
-        grid_v = griddata(c[:,0:2], c[:,3],  (grid_x, grid_y),  method='linear')
+            c = np.column_stack((X, Y, u, v))
+            c = c[ c[:,0].argsort()]    
 
-        np.savetxt( "u-Re-"+str(Re)+"-fileIndex-"+str(fileIndex), grid_u.T)      
-        np.savetxt( "v-Re-"+str(Re)+"-fileIndex-"+str(fileIndex), grid_v.T)    
+    
+
+            grid_x, grid_y = np.mgrid[min(X):max(X):0.01, min(Y):max(Y):0.01]
+            grid_u = griddata(c[:,0:2], c[:,2],  (grid_x, grid_y),  method='linear')
+
+            grid_v = griddata(c[:,0:2], c[:,3],  (grid_x, grid_y),  method='linear')
+
+            np.savetxt( "u-Re-"+str(Re)+"-fileIndex-"+str(fileIndex), grid_u.T)      
+            np.savetxt( "v-Re-"+str(Re)+"-fileIndex-"+str(fileIndex), grid_v.T)  
+        except:
+            continue  
 
 
 os.chdir(starting_path)
